@@ -23,51 +23,51 @@ type SummaryProps = {
 export default class Summary extends Component<SummaryProps> {
 
   requiredData() {
-    return (this.props.events || this.props.events.length > 0)
-      ? true : false;
+    return (!this.props.events || this.props.events.length <= 0)
+      ? false : true;
   }
 
-		render() {
+	render() {
 
-			if (!this.requiredData()) {
-        return null;
-      }
+		if (!this.requiredData()) {
+      return null;
+    }
 
-			// Analyze all events, and gather summary information.
-			let { lines, line_boros, lines_affected, boro_count} = prepareEventSummary(this.props.events);
+		// Analyze all events, and gather summary information.
+		let { lines, line_boros, lines_affected, boro_count} = prepareEventSummary(this.props.events);
 
-			// Get a final boro_severity for each boro.
-			let boro_severity = determineSeverity(boro_count);
+		// Get a final boro_severity for each boro.
+		let boro_severity = determineSeverity(boro_count);
 
-			return (
-				<View>
-          {/** Summary */ }
+		return (
+			<View>
+        {/** Summary */ }
 
-          <DateDisplay
-						age={this.props.age} />
+        <DateDisplay
+					age={this.props.age} />
 
-          <BoroMap
-            manhattan={boro_severity['Mn']}
-            brooklyn={boro_severity['Bk']}
-            queens={boro_severity['Qs']}
-            bronx={boro_severity['Bx']}
-            statenIsland={boro_severity['SI']} />
+        <BoroMap
+          manhattan={boro_severity['Mn']}
+          brooklyn={boro_severity['Bk']}
+          queens={boro_severity['Qs']}
+          bronx={boro_severity['Bx']}
+          statenIsland={boro_severity['SI']} />
 
-            {/**
-          <SvgExample />
-          */ }
+          {/**
+        <SvgExample />
+        */ }
 
-          <Logo />
+        <Logo />
 
-          {
-            Object.keys(lines).map(l => (<GroupLineCard
-              key={_.uniqueId('lineCard-')}
-              line_group={l}
-              affectedLines={lines_affected}
-              boros={line_boros[l]}
-              events={lines[l]}/>) )
-          }
-				</View>
-			);
-		}
+        {
+          Object.keys(lines).map(l => (<GroupLineCard
+            key={_.uniqueId('lineCard-')}
+            line_group={l}
+            affectedLines={lines_affected}
+            boros={line_boros[l]}
+            events={lines[l]}/>) )
+        }
+			</View>
+		);
+	}
 }
