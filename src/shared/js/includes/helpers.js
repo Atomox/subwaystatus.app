@@ -24,9 +24,14 @@ let helpers = ( () => {
   }
 
   function getEnv () {
-    return (process)
-      ? _.get(process, "env.NODE_ENV", 'dev')
-      : 'dev';
+    /**
+     * __DEV__ should always be set to true in react native, unless building to prod.
+     * @see
+     * https://github.com/react-community/create-react-native-app/issues/57#issuecomment-416190454
+     */
+    return (__DEV__)
+      ? 'dev'
+      : 'production';
   }
 
   function underscoreToCaps(str) {

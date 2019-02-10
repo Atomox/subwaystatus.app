@@ -3,8 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "postinstall": "echo 'Run 3rd Party Script + Lib Fish Hook fix...' && npm run rn-fixThirdParty && npm run rn-fixLibFishHook",
+    "rn-fixThirdParty": "exec ./node_modules/react-native/scripts/ios-install-third-party.sh",
+    "rn-fixLibFishHook": "cp ios/build/Build/Products/Debug-iphonesimulator/libfishhook.a node_modules/react-native/Libraries/WebSocket/",
+    "rn-cache-clear": "rm -rf $TMPDIR/metro-* && rm -rf $TMPDIR/react-* && rm -rf $TMPDIR/haste-*",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
+    "run-ios:clean": "echo 'RUN IOS CLEAN........' && npm run rn-cache-clear && npm run run-ios",
+    "run-ios": "react-native run-ios",
     "run-web": "./node_modules/.bin/webpack-dev-server -d --config ./web/webpack.config.js --inline --hot --colors"
   },
   "dependencies": {

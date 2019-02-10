@@ -1,6 +1,7 @@
 'use strict';
 
 import log from './includes/logger';
+import { helpers } from './includes/helpers';
 
 /**
  *
@@ -31,7 +32,7 @@ export default class MtaDelaysApi {
 
   getEnvUrl = () => {
 
-    let env = this.getEnv();
+    let env = helpers.getEnv();
 
     let e = _.get(api, env);
     let url = _.get(e, 'protocol')
@@ -46,7 +47,7 @@ export default class MtaDelaysApi {
 
   getStatus = () => {
 
-    let env = this.getEnv();
+    let env = helpers.getEnv();
     let url = this.getEnvUrl();
 
     log.info(' ---- The environment is: [', env, '] ------');
