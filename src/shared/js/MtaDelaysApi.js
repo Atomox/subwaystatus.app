@@ -57,6 +57,6 @@ export default class MtaDelaysApi {
       .then(res => (_.get(res, 'status', 500) == 200)
         ? res : Promise.reject('Fetch had a non-200 response.'))
       .then(res => res.json() )
-      .catch(err => Promise.reject(err));
+      .catch(err => Promise.reject(err + ' when requesting: ' + url));
   }
 }

@@ -14,7 +14,7 @@ export default class Header extends Component<HeaderProps> {
 		return (
 			<View>
 				{(this.props.status == 'initializing' || this.props.status === false)
-					? <StateMessage status={this.props.status} />
+					? <StateMessage status={this.props.status} debug={ this.props.debug } />
 					: (this.props.numEvents === 0)
 						? <AllClear />
 						: null
@@ -31,6 +31,7 @@ type StatusMessageProps = {
 export class StateMessage extends Component<typeStatusMessageProps> {
 	render() {
 		let message = '';
+    let debug = false;
 
 		switch (this.props.status) {
 			case 'initializing':
@@ -45,6 +46,7 @@ export class StateMessage extends Component<typeStatusMessageProps> {
 		return(
 			<Card id={'state-message'} header={''} headerClass={''}>
 				<Text>{message}</Text>
+        { debug && <Text>Debug: { this.props.debug }</Text> }
 			</Card>
 		);
 	}

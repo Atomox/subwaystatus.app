@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, ScrollView, View} from 'react-native';
+import {Platform, StyleSheet, Text, ScrollView, View, RefreshControl } from 'react-native';
 
 import {styles} from '../../styles/App.styles';
 
@@ -15,15 +15,17 @@ if (global && !global.self && Platform.OS === 'ios') {
   global.self = global;
 }
 
+const delaysApi = new MTADApi();
+
 type Props = {};
+
 export default class App extends Component<Props> {
 
   constructor(props) {
     super(props);
 
-    const delaysApi = new MTADApi();
-
     this.state = {
+      refreshing: true,
       status: 'initializing',
       debug: 'requesting',
       env: delaysApi.getEnv(),
@@ -34,7 +36,21 @@ export default class App extends Component<Props> {
       summary: null
     }
 
-    delaysApi.getStatus()
+    this.fetchApi(true);
+  }
+
+  fetchApi = (onInit) => {
+    // If we're already fetching, don't trigger another refresh.
+    // We set refreshing to true on the first load, because the state
+    // isn't set yet, so don't exit.
+    if (onInit !== true && this.state && this.state.refreshing === true) {
+      return;
+    }
+    if (onInit !== true) {
+      this.setRefresh(true);
+    }
+
+    return delaysApi.getStatus()
     .then( data => {
       this.setState(prevState => {
         prevState.debug = 'Received data of type ' + typeof data;
@@ -55,6 +71,21 @@ export default class App extends Component<Props> {
         return prevState;
       });
       this.initLists({ status: false });
+    })
+    .then( data => {
+      this.setRefresh(false);
+    });
+  }
+
+  // Refresh callback triggered from <RefreshControl>
+  _onRefresh = () => {
+    this.fetchApi();
+  }
+
+  setRefresh = (refresh) => {
+    this.setState(prevState => {
+      prevState.refreshing = (refresh) ? true : false;
+      return prevState;
     });
   }
 
@@ -80,13 +111,21 @@ export default class App extends Component<Props> {
           contentContainerStyle={{
               flexGrow: 1,
               justifyContent: 'space-between'
-          }}>
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this._onRefresh}
+            />
+          }>
+
           <Header
             age={this.state.age}
             status={this.state.status}
             numEvents={this.state.events.length}
             archive={this.state.archive}
-            summary={this.state.summary}/>
+            summary={this.state.summary}
+            debug={this.state.debug} />
 
           <Summary
             events={this.state.events}

@@ -25,13 +25,22 @@ let helpers = ( () => {
 
   function getEnv () {
     /**
+     * @todo
+     *   For now, so we can hit PROD from the phyrical device, we're always triggering production.
+     *   Update this once we figure out a better way.
+     *
+     *   THIS MAY CAUSE ERRORS IF DEPLOYED TO PROD.
+     *
      * __DEV__ should always be set to true in react native, unless building to prod.
+     *
      * @see
      * https://github.com/react-community/create-react-native-app/issues/57#issuecomment-416190454
      */
-    return (__DEV__)
-      ? 'dev'
-      : 'production';
+    return 'production';
+//
+//    (__DEV__)
+//      ? 'dev'
+//      : 'production';
   }
 
   function underscoreToCaps(str) {
