@@ -12,6 +12,7 @@ import { GridRow, RowCell } from '../common/Grid';
 import TrainLine from '../TrainLine';
 
 import glStyle from '../../../styles/Summary.styles';
+import cStyle from '../../../styles/Common.styles';
 type GroupLineEventProps = {
   event: {
     keyword: []
@@ -54,10 +55,10 @@ export default class GroupLineEvent extends React.Component <GroupLineEventProps
           </Txt>
         </RowCell>
 
-        <RowCell styles={ [{marginLeft: 'auto'}] }>
-          <Txt>
+        <RowCell collapse={true} styles={ [cStyle.viewRight, { marginLeft: 'auto' }]}>
+          <GridRow>
             {	(this.props.event.boro) ? assembleBoros(this.props.event.boro, true, false, [glStyle.boro]) : null }
-          </Txt>
+          </GridRow>
         </RowCell>
       </GridRow>
     );

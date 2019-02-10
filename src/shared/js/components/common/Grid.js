@@ -36,7 +36,14 @@ export class RowCell extends Component <GridProps> {
     }
 
     render() {
-  		return(
+  		return (this.props.collapse)
+      ? (
+  			<View
+          style={ [this.props.styles, this.getSize()] }>
+			    {this.props.children}
+  			</View>
+  		)
+      : (
   			<View
           style={ [this.props.styles, gStyles.rowCell, this.getSize()] }>
 			    {this.props.children}

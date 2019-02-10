@@ -11,6 +11,7 @@ import { GridRow, RowCell } from '../common/Grid';
 import GroupLineEvent from './GroupLineEvent';
 
 import glStyle from '../../../styles/Summary.styles';
+import cStyle from '../../../styles/Common.styles';
 
 /**
 type GroupLineCardProps = {
@@ -52,14 +53,16 @@ export default class GroupLineCard extends React.Component /** <GroupLineCardPro
 		return(
 			<View style={ [glStyle.groupLineCard, myGlColor]}>
 				<GridRow styles={ [ myGLHeaderColor, glStyle.groupLineCardHeader ]}>
-					<GridRow h3="true" styles={ glStyle.h3 }>
-						{ assembleLines(lines, this.props.affectedLines) }
-					</GridRow>
-					<View>
-						<Text>
+          <RowCell>
+  					<GridRow h3="true" styles={ glStyle.h3 }>
+  						{ assembleLines(lines, this.props.affectedLines) }
+  					</GridRow>
+          </RowCell>
+          <RowCell collapse={true} styles={ [ cStyle.viewRight, {marginLeft: 'auto'} ] }>
+  					<GridRow styles={ [] }>
               { assembleBoros(this.props.boros, false, false, glStyle.boro) }
-            </Text>
-					</View>
+  					</GridRow>
+          </RowCell>
 				</GridRow>
 
 				<View>

@@ -33,8 +33,8 @@ export default StyleSheet.create({
     marginRight: remCalc(.5)
   },
   boro: {
-    paddingLeft: remCalc(.5),
-    paddingRight: remCalc(.5),
+    paddingLeft: remCalc(.25),
+    paddingRight: remCalc(.05),
     fontWeight: "200",
     color: "#555"
   },

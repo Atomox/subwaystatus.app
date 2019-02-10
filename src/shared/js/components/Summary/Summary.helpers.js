@@ -3,6 +3,7 @@
 import * as _ from 'lodash';
 
 import React from 'react';
+import { Text, View } from 'react-native';
 import Boro from '../Boro';
 import TrainLine from '../TrainLine';
 
@@ -19,7 +20,7 @@ export function	assembleBoros(boros, short, caps, styles) {
 					))
 				.reduce((prev, curr) => ((prev === null)
 					? [curr]
-					: [prev, ', ', curr]),
+					: [prev, (<Text key={_.uniqueId('seperator')}>, </Text>), curr]),
 				null)
 			: null;
 	}
