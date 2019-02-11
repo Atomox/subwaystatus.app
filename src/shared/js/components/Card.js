@@ -31,6 +31,16 @@ export default class Card extends Component <CardProps> {
         : this.props.lineHeader;
     }
 
+    getSubHeader() {
+      return (typeof this.props.headerSubtitle === 'string')
+        ? (
+            <Text style={[cStyle.cardSubtitleStrong, cStyle.cardSubTitle, ]}>
+              { this.props.headerSubtitle }
+            </Text>
+          )
+        : this.props.headerSubtitle;
+    }
+
   	render() {
   		let key = (this.props.id) ? this.props.id : _.uniqueId('card');
   		let mainClass = "card";
@@ -51,9 +61,7 @@ export default class Card extends Component <CardProps> {
             </View>
             <View style={ cStyle.cardHeaderRight }>
               <View>
-    						<Text style={[cStyle.cardSubtitleStrong, cStyle.cardSubTitle, ]}>
-                  { this.props.headerSubtitle }
-                </Text>
+                { this.getSubHeader() }
     					</View>
     					<View className="title small-12 medium-7">
                 { (Array.isArray(this.props.header))
