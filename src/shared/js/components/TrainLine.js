@@ -14,13 +14,14 @@ type TrainLineProps = {
 	'line': null,
 	'dir': -1,
 	'disabled': false,
+	'disabledBase': false,
 	'outline': false,
 	'styleType': 'large',
 };
 
 export default class TrainLine extends Component <TrainLineProps> {
 
-	getStyleBase() {
+	getBaseStyleGroup() {
 		return (this.props.styleType === 'large')
 			? tStyleHeader
 			: tStyleRouteChange;
@@ -38,32 +39,50 @@ export default class TrainLine extends Component <TrainLineProps> {
 			: null;
 	}
 
-	render() {
-
-		let s = this.getStyleBase();
-
-		let classes = 'line';
+	getStyles(s) {
 		let stylesBase = [];
 		let stylesText = [];
 		if (this.props.disabled) {
-			classes = classes + ' ' + 'disabled';
 			stylesBase.push(s.disabledBase);
 			stylesBase.push(s.outline);
 			stylesText.push(s.disabledText);
 		}
 		if (this.props.outline) {
-			classes = classes + ' ' + 'outline';
 			stylesBase.push(s.outline);
 		}
 
-		let container = (this.props.styleType === 'large')
-			? s.container
-			: s.containerSmall;
+		return {
+			'base': stylesBase,
+			'text': stylesText
+		}
+	}
+
+	render() {
+
+		let s = this.getBaseStyleGroup();
+		let styles = this.getStyles(s);
+
+		if (this.props.styleType !== 'large') {
+			return this.renderInline(s, styles);
+		}
 
 		return (
-			<View className={classes} style={container}>
-				<View style={[s.base, ...stylesBase]}>
-					<Txt styles={[s.text, ...stylesText]}>
+			<View style={s.container}>
+				<View style={[s.base, ...styles.base]}>
+					<Txt styles={[s.text, ...styles.text]}>
+						{ this.getLine() }
+					</Txt>
+				</View>
+				{ this.getDirection(s.direction) }
+			</View>
+		);
+	}
+
+	renderInline(s, styles) {
+		return (
+			<View style={ s.containerSmall }>
+				<View style={[s.base, ...styles.base]}>
+					<Txt styles={[s.text, ...styles.text]}>
 						{ this.getLine() }
 					</Txt>
 				</View>

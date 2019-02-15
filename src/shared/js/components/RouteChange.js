@@ -16,38 +16,39 @@ export default class RouteChange extends Component {
     console.log('<!> Route Change Error', err);
   }
 
+  prepRouteObject(r) {
+    const along = this.isRouteLineChange(r);
+    return {
+      line_change: this.isRouteLineChange(r),
+      lcl: (!along && r.exp_lcl && r.exp_lcl == 'local') ? true : false,
+      exp: (!along && r.exp_lcl && r.exp_lcl == 'express') ? true : false,
+      bypass: (r.bypass && r.bypass.length > 0) ? true : false,
+      no_svc_between: (r.noTrains) ? true : false
+    };
+  }
+
+  isRouteLineChange(r) {
+    if (r.along && Array.isArray(r.lines)) {
+      if (r.lines.indexOf(r.along) === -1) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   getRoutes() {
     return this.props.routeInfo.route.map(r => {
       try {
 
-        let line_change = true,
-          lcl = false,
-          exp = false,
-          bypass = false,
-          no_svc_between = false,
-          pre = null,
-          action = null;
-
         // Along null is running on same line between stations.
         if (r.along == null) {
           r.along = r.lines[0];
-          line_change = false;
-          if (r.noTrains) {
-            no_svc_between = true;
-          }
-          else if (r.bypass && r.bypass.length > 0) {
-            bypass = true;
-          }
-          if (r.exp_lcl) {
-            if (r.exp_lcl == 'local') {
-              lcl = true;
-            }
-            else if (r.exp_lcl == 'express') {
-              exp = true;
-            }
-          }
         }
+
+        const rObj = this.prepRouteObject(r);
+
+        let pre = null;
+        let action = null;
 
   			let trains = r.lines.map(t => (
           <TrainLine
@@ -57,7 +58,7 @@ export default class RouteChange extends Component {
             styleType='small'/>
           ));
 
-  			let along = (line_change)
+  			let along = (rObj.line_change)
           ? (<TrainLine
 				      key={_.uniqueId('train-' + mta.getlineById(r.along))}
 		          line={mta.getlineById(r.along)}
@@ -101,11 +102,11 @@ export default class RouteChange extends Component {
           : null;
 
         if (r.action === 'replace') { action = 'replace the'; }
-        else if (line_change) {       action = 'via the'; }
-        else if (no_svc_between) {    action = 'service'; }
-        else if (bypass) {            action = 'skip'; }
+        else if (rObj.line_change) {       action = 'via the'; }
+        else if (rObj.no_svc_between) {    action = 'service'; }
+        else if (rObj.bypass) {            action = 'skip'; }
 //        else if (r.section) {   action = 'section ' + r.section; }
-        else if (lcl || exp) {  action = 'run ' + r.exp_lcl; }
+        else if (rObj.lcl || rObj.exp) {  action = 'run ' + r.exp_lcl; }
         else {                  action = 'run'; }
 
         pre = (r.section) ? '(' + r.section + ')' : '';
@@ -115,7 +116,7 @@ export default class RouteChange extends Component {
             ? ' ' + 'Some'
             : 'Some';
         }
-        if (no_svc_between) {
+        if (rObj.no_svc_between) {
           pre += (pre.length > 0)
             ? ' ' + 'No'
             : 'No';
@@ -155,7 +156,7 @@ export default class RouteChange extends Component {
                  */ }
                 <Txt styles={ [rcStyle.text, rcStyle.lineSegment] }> { action } </Txt>
 
-                { line_change && along }
+                { rObj.line_change && along }
 
                 { // No stations, just "in Boro".
                   (boro_general) &&
@@ -166,11 +167,11 @@ export default class RouteChange extends Component {
                   getBypassText(bypass_stations) }
 
                 { // Normal Stations from/to.
-                  (!boro_general && !bypass_stations) && !no_svc_between &&
+                  (!boro_general && !bypass_stations) && !rObj.no_svc_between &&
                   getNormalText(from, to) }
 
                 { // Normal Stations from/to.
-                  (no_svc_between) &&
+                  (rObj.no_svc_between) &&
                   getBetweenText(from, to) }
 
             </Txt>
@@ -178,7 +179,7 @@ export default class RouteChange extends Component {
   			);
       }
       catch (err) {
-        console.error('Problem with route change: ', r);
+        console.error('Problem with route change: ', r, '|', err);
       }
 
 		});
