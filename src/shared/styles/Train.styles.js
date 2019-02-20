@@ -62,7 +62,6 @@ export default (emBaseSize) => { return StyleSheet.create({
       alignItems: 'center',
       paddingBottom: 0,
       marginBottom: 0,
-//      backgroundColor: "blue",
       ...Platform.select({
         ios: {
           marginTop: remCalc(0),

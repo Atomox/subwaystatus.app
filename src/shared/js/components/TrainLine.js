@@ -86,7 +86,6 @@ export default class TrainLine extends Component <TrainLineProps> {
 						{ this.getLine() }
 					</Txt>
 				</View>
-				{ this.getDirection(s.direction) }
 			</View>
 		);
 	}

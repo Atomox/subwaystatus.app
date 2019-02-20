@@ -20,20 +20,123 @@ export default class RouteChange extends Component {
     const along = this.isRouteLineChange(r);
     return {
       line_change: this.isRouteLineChange(r),
-      lcl: (!along && r.exp_lcl && r.exp_lcl == 'local') ? true : false,
-      exp: (!along && r.exp_lcl && r.exp_lcl == 'express') ? true : false,
+      lcl: (!along && _.get(r, 'exp_lcl') == 'local') ? true : false,
+      exp: (!along && _.get(r, 'exp_lcl') == 'express') ? true : false,
       bypass: (r.bypass && r.bypass.length > 0) ? true : false,
       no_svc_between: (r.noTrains) ? true : false
     };
   }
 
-  isRouteLineChange(r) {
-    if (r.along && Array.isArray(r.lines)) {
-      if (r.lines.indexOf(r.along) === -1) {
+  isRouteLineChange(route) {
+    if (route.along && Array.isArray(route.lines)) {
+      if (route.lines.indexOf(route.along) === -1) {
         return true;
       }
     }
     return false;
+  }
+
+  getRouteAlong(route, rObj) {
+    return (rObj.line_change)
+      ? (<TrainLine
+          key={_.uniqueId('train-' + mta.getlineById(route.along))}
+          line={mta.getlineById(route.along)}
+          dir={'both'}
+          styleType='small'/>)
+      : (<Txt> run between</Txt>)
+  }
+
+  getRouteFrom(route) {
+    return (route.from)
+      ? (
+          <Station
+            key={_.uniqueId('station-' + route.from)}
+            stations={this.props.stations}
+            line={_.union([route.along],route.lines)}
+            sid={route.from}/>
+        )
+      : null;
+  }
+
+  getRouteTo(route) {
+    return (route.to)
+      ? (
+          <Station
+            key={_.uniqueId('station-' + route.to)}
+            stations={this.props.stations}
+            line={_.union([route.along],route.lines)}
+            sid={route.to}/>
+        )
+      : null;
+  }
+
+  getRouteBoroGeneral(route) {
+    return (route.in)
+      ? (<Txt> { route.in }</Txt>)
+      : null;
+  }
+
+  getRouteTrains(route) {
+    return route.lines.map(t => (
+      <TrainLine
+        key={_.uniqueId('train-' + mta.getlineById(t))}
+        line={mta.getlineById(t)}
+        dir='both'
+        styleType='small'/>
+      ));
+  }
+
+  getRouteBypassStations(route) {
+    return (route.bypass)
+      ? (route.bypass
+          .map( s => (<Station
+            key={_.uniqueId('station-' + s)}
+            stations={this.props.stations}
+            line={_.union([route.along],route.lines)}
+            sid={s}/> ) )
+          .reduce((prev, curr) => [prev, '<Txt>, </Txt>', curr])
+        )
+      : null;
+  }
+
+  getRouteAction(route, rObj) {
+    if (route.action === 'replace') {
+      return 'replace the';
+    }
+    else if (rObj.line_change) {
+      return 'via the';
+    }
+    else if (rObj.no_svc_between) {
+      return 'service';
+    }
+    else if (rObj.bypass) {
+      return 'skip';
+    }
+//        else if (r.section) {   action = 'section ' + r.section; }
+    else if (rObj.lcl || rObj.exp) {
+      return 'run ' + route.exp_lcl;
+    }
+
+    return 'run';
+  }
+
+  getRoutePrefix(route, rObj) {
+    let pre = (route.section)
+      ? '(' + route.section + ')'
+      : '';
+
+    if (route.allTrains === false) {
+      pre += (pre.length > 0)
+        ? ' ' + 'Some'
+        : 'Some';
+    }
+    if (rObj.no_svc_between) {
+      pre += (pre.length > 0)
+        ? ' ' + 'No'
+        : 'No';
+    }
+
+    return pre;
   }
 
   getRoutes() {
@@ -47,80 +150,15 @@ export default class RouteChange extends Component {
 
         const rObj = this.prepRouteObject(r);
 
-        let pre = null;
-        let action = null;
+        let trains = this.getRouteTrains(r);
+        let along = this.getRouteAlong(r, rObj);
+        let from = this.getRouteFrom(r);
+        let to = this.getRouteTo(r);
+        let boro_general = this.getRouteBoroGeneral(r);
+        let bypass_stations = this.getRouteBypassStations(r);
+        let action = this.getRouteAction(r, rObj);
+        let pre = this.getRoutePrefix(r, rObj);
 
-  			let trains = r.lines.map(t => (
-          <TrainLine
-  					key={_.uniqueId('train-' + mta.getlineById(t))}
-  					line={mta.getlineById(t)}
-  					dir='both'
-            styleType='small'/>
-          ));
-
-  			let along = (rObj.line_change)
-          ? (<TrainLine
-				      key={_.uniqueId('train-' + mta.getlineById(r.along))}
-		          line={mta.getlineById(r.along)}
-              dir={'both'}
-              styleType='small'/>)
-          : (<Txt> run between</Txt>);
-
-  			let from = (r.from)
-          ? (
-              <Station
-                key={_.uniqueId('station-' + r.from)}
-                stations={this.props.stations}
-      					line={_.union([r.along],r.lines)}
-      					sid={r.from}/>
-		        )
-          : null;
-
-  			let to = (r.to)
-          ? (
-              <Station
-                key={_.uniqueId('station-' + r.to)}
-      					stations={this.props.stations}
-      					line={_.union([r.along],r.lines)}
-      					sid={r.to}/>
-	          )
-          : null;
-
-        let boro_general = (r.in)
-          ? (<Txt> { r.in }</Txt>)
-          : null;
-
-        let bypass_stations = (r.bypass)
-          ? (r.bypass
-              .map( s => (<Station
-                key={_.uniqueId('station-' + s)}
-      					stations={this.props.stations}
-      					line={_.union([r.along],r.lines)}
-      					sid={s}/> ) )
-              .reduce((prev, curr) => [prev, ', ', curr])
-            )
-          : null;
-
-        if (r.action === 'replace') { action = 'replace the'; }
-        else if (rObj.line_change) {       action = 'via the'; }
-        else if (rObj.no_svc_between) {    action = 'service'; }
-        else if (rObj.bypass) {            action = 'skip'; }
-//        else if (r.section) {   action = 'section ' + r.section; }
-        else if (rObj.lcl || rObj.exp) {  action = 'run ' + r.exp_lcl; }
-        else {                  action = 'run'; }
-
-        pre = (r.section) ? '(' + r.section + ')' : '';
-
-        if (r.allTrains === false) {
-          pre += (pre.length > 0)
-            ? ' ' + 'Some'
-            : 'Some';
-        }
-        if (rObj.no_svc_between) {
-          pre += (pre.length > 0)
-            ? ' ' + 'No'
-            : 'No';
-        }
 
         function getBypassText() {
           return (<Txt styles={[rcStyle.flex1,rcStyle.text]}>{ bypass_stations }.</Txt>);
