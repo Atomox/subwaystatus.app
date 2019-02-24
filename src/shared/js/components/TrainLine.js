@@ -63,7 +63,9 @@ export default class TrainLine extends Component <TrainLineProps> {
 		let styles = this.getStyles(s);
 
 		if (this.props.styleType !== 'large') {
-			return this.renderInline(s, styles);
+			return (this.props.styleType === 'inline')
+				? this.renderInText(s, styles)
+				: this.renderSmall(s, styles);
 		}
 
 		return (
@@ -78,7 +80,7 @@ export default class TrainLine extends Component <TrainLineProps> {
 		);
 	}
 
-	renderInline(s, styles) {
+	renderSmall(s, styles) {
 		return (
 			<View style={ s.containerSmall }>
 				<View style={[s.base, ...styles.base]}>
@@ -87,6 +89,28 @@ export default class TrainLine extends Component <TrainLineProps> {
 					</Txt>
 				</View>
 			</View>
+		);
+	}
+
+	renderInText(s, styles) {
+		/**
+		 *
+		 *
+		 *
+		 * @TODO
+		 *
+		 *    IN PROGRESS
+		 *
+		 *
+		 *
+		 */
+
+		return (
+			<Txt styles={ [s.containerInline] }>
+				<Txt styles={[s.text, ...styles.text]}>
+					{ this.getLine() }
+				</Txt>
+			</Txt>
 		);
 	}
 }

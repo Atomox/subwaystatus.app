@@ -46,26 +46,28 @@ export default class RouteChange extends Component {
 			: (<Txt> run between</Txt>)
 	}
 
-	getRouteFrom(route) {
+	getRouteFrom(route, styles) {
 		return (route.from)
 			? (
 					<Station
 						key={_.uniqueId('station-' + route.from)}
 						stations={this.props.stations}
 						line={_.union([route.along],route.lines)}
-						sid={route.from}/>
+						sid={route.from}
+						styles={ styles }/>
 				)
 			: null;
 	}
 
-	getRouteTo(route) {
+	getRouteTo(route, styles) {
 		return (route.to)
 			? (
 					<Station
 						key={_.uniqueId('station-' + route.to)}
 						stations={this.props.stations}
 						line={_.union([route.along],route.lines)}
-						sid={route.to}/>
+						sid={route.to}
+						styles={ styles }/>
 				)
 			: null;
 	}
@@ -94,7 +96,11 @@ export default class RouteChange extends Component {
 						stations={this.props.stations}
 						line={_.union([route.along],route.lines)}
 						sid={s}/> ) )
-					.reduce((prev, curr) => [prev, '<Txt>, </Txt>', curr])
+					.reduce((prev, curr) => [
+						prev,
+						(<Txt key={_.uniqueId('seperator')}>, </Txt>),
+						curr
+					])
 				)
 			: null;
 	}
@@ -152,9 +158,14 @@ export default class RouteChange extends Component {
 
 				let trains = this.getRouteTrains(r);
 				let along = this.getRouteAlong(r, rObj);
-				let from = this.getRouteFrom(r);
-				let to = this.getRouteTo(r);
 				let boro_general = this.getRouteBoroGeneral(r);
+
+				let from = (this.isRouteLineChange(r) && !boro_general)
+					? this.getRouteFrom(r, rcStyle.text)
+					: this.getRouteFrom(r);
+				let to = (this.isRouteLineChange(r) && !boro_general)
+					? this.getRouteTo(r, rcStyle.text)
+					: this.getRouteTo(r);
 				let bypass_stations = this.getRouteBypassStations(r);
 				let action = this.getRouteAction(r, rObj);
 				let pre = this.getRoutePrefix(r, rObj);
@@ -176,6 +187,47 @@ export default class RouteChange extends Component {
 					return (<Txt styles={[rcStyle.flex1,rcStyle.text]}>between {from} and {to}.</Txt>);
 				}
 
+				if (this.isRouteLineChange(r) ) {
+
+					// No stations, just "in Boro".
+					if (boro_general) {
+						return (
+							<View key={_.uniqueId()} style={ rcStyle.container }>
+								<Txt styles={ rcStyle.pre }>{ pre }</Txt>
+								{ trains }
+								<View style={ rcStyle.container }>
+									<Txt styles={ [rcStyle.text, rcStyle.lineSegment] }> { action } </Txt>
+
+									{ rObj.line_change && along }
+
+									<Txt styles={ rcStyle.lineMessageContainerStub }>
+										<Txt styles={[rcStyle.flex1,rcStyle.text]}>in { boro_general }.</Txt>
+									</Txt>
+								</View>
+							</View>
+						);
+					}
+					else {
+						return (
+							<View key={_.uniqueId()} style={ rcStyle.container }>
+								<Txt styles={ rcStyle.pre }>{ pre }</Txt>
+								{ trains }
+								<View style={ rcStyle.container }>
+									<Txt styles={ [rcStyle.text, rcStyle.lineSegment] }> { action } </Txt>
+
+									{ rObj.line_change && along }
+
+									<Txt styles={[rcStyle.text]}>from </Txt>
+									{from}
+									<Txt styles={[rcStyle.text]}> until </Txt>
+									{to}
+									<Txt styles={[rcStyle.text]}>.</Txt>
+								</View>
+							</View>
+						);
+					}
+				}
+
 				return (
 					<View key={_.uniqueId()} style={ rcStyle.container }>
 
@@ -185,13 +237,6 @@ export default class RouteChange extends Component {
 
 						<Txt styles={ rcStyle.lineMessageContainer }>
 
-							{ /**
-
-									@TODO -- We need to unwrap this block from txt, while maintaining a line wrap.
-
-											iOS looks like be breaking the - along - out of the txt, which causes a margin of 2, and screwes up spacing of the message. The Line is bumping right a split second after the load, and overlapping with the following word.
-
-								 */ }
 								<Txt styles={ [rcStyle.text, rcStyle.lineSegment] }> { action } </Txt>
 
 								{ rObj.line_change && along }

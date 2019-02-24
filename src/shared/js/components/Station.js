@@ -33,10 +33,14 @@ const Station = (props) => {
 		return needle;
 	}
 
+	let styles = (props.styles)
+		? [props.styles, stStyle.base]
+		: [stStyle.base];
+
 	let station = getStation(props.line, props.sid);
 
 	return (
-		<Text style={stStyle.base}>
+		<Text style={ styles }>
 			{(station)
 				? station.name
 				: null}

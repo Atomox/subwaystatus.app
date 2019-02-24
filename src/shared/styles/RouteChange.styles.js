@@ -8,6 +8,7 @@ export default StyleSheet.create({
   container: {
     flexDirection: 'row',
     flex: 1,
+    alignItems: 'flex-start',
     flexWrap: "wrap",
 //    backgroundColor: "#EEE",
     ...Platform.select({
@@ -24,6 +25,9 @@ export default StyleSheet.create({
   },
   flex1: {
     flex: 1
+  },
+  lineMessageContainerStub: {
+    backgroundColor: "blue"
   },
   lineMessageContainer: {
     flex: 1,
